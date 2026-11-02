@@ -17,7 +17,7 @@ all: bigwig.so bigwiglib.a bigwiglib.so
 
 jkweb.a:
 	[ -d jkweb/lib/${MACHTYPE} ] || mkdir jkweb/lib/${MACHTYPE}
-	$(MAKE) -C jkweb/lib
+	$(MAKE) -C jkweb/lib HG_WARN=-w
 	ln -s jkweb/lib/${MACHTYPE}/jkweb.a jkweb.a	
 
 bigwig.so: prepare jkweb.a bigWig_R.c utils_R.c bwgExtra.h bwgExtra.c bw_query.h bw_query.c bw_base.h bw_base.c bigWig_R2.c

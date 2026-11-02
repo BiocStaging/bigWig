@@ -1,7 +1,7 @@
 Package: bigWig
 Type: Package
 Title: R Interface to Query UCSC BigWig Files
-Version: 0.99.1
+Version: 0.99.2
 Date: 2026-10-26
 Authors@R: c(
     person("Andre L.", "Martins", role = "aut",
@@ -25,6 +25,7 @@ VignetteBuilder: knitr
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 NeedsCompilation: yes
+OS_type: unix
 SystemRequirements: GNU make
 URL: https://github.com/guertinlab/bigWig
 BugReports: https://github.com/guertinlab/bigWig/issues
