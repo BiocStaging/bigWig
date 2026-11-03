@@ -8,5 +8,7 @@ CC:=$(shell $(R_HOME)/bin/R CMD config CC)
 MACHTYPE:=$(shell uname -m | sed 's/arm64/aarch64/')
 LDFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config LDFLAGS)
 CPICFLAGS:=$(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CPICFLAGS)
-COPT:=
+# Suppress deprecated empty-prototype warnings in jkweb headers included
+# by the main package C files (clang on macOS; GCC silently ignores unknown -Wno-*)
+COPT:=-Wno-deprecated-non-prototype
 CFLAGS += $(shell $(R_HOME)/bin$(R_ARCH_BIN)/R CMD config CFLAGS) $(CPICFLAGS) -I${R_HOME}/include 
