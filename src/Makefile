@@ -13,6 +13,14 @@ empty:=
 space:= $(empty) $(empty)
 MFLGSESC := $(subst $(space),\$(space),$(MFLGS))
 
+# On macOS the linker requires explicit permission for symbols resolved at runtime
+# (e.g. Rf_error from errabort.c, resolved when bigwiglib.so is loaded with R)
+ifeq ($(UNAME_S),Darwin)
+BWLIB_EXTRA_LDFLAGS=-undefined dynamic_lookup
+else
+BWLIB_EXTRA_LDFLAGS=
+endif
+
 all: bigwig.so bigwiglib.a bigwiglib.so
 
 jkweb.a:
@@ -32,7 +40,7 @@ bigwiglib.a: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
 	cp bigwiglib.a ../inst/lib
 
 bigwiglib.so: jkweb.a bw_query.h bw_query.c bw_base.h bw_base.c bigwiglib.c
-	$(CC) -shared -I./jkweb/inc ${CFLAGS} ${COPT} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${L} ${LDFLAGS}
+	$(CC) -shared -I./jkweb/inc ${CFLAGS} ${COPT} -o $@ bw_base.c bw_query.c bigwiglib.c jkweb.a ${L} ${LDFLAGS} ${BWLIB_EXTRA_LDFLAGS}
 
 clean:
 	rm -f bigwig.so bigwiglib.a bigwiglib.so *.o jkweb.a
