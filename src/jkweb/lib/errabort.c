@@ -24,9 +24,11 @@
 #include "hash.h"
 #include "dystring.h"
 #include "errabort.h"
-/* R extension headers for R-compatible error/warning output */
-#include <R_ext/Error.h>
-#include <R_ext/Print.h>
+/* Forward declarations for R error handling.
+ * Avoids header dependency — resolved at link time since bigwig.so links libR. */
+extern void Rf_error(const char *msg, ...);
+extern void REprintf(const char *format, ...);
+extern void REvprintf(const char *format, va_list ap);
 
 
 
