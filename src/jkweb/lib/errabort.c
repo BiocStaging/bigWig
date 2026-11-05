@@ -24,6 +24,9 @@
 #include "hash.h"
 #include "dystring.h"
 #include "errabort.h"
+/* R extension headers for R-compatible error/warning output */
+#include <R_ext/Error.h>
+#include <R_ext/Print.h>
 
 
 
@@ -45,13 +48,11 @@ struct perThreadAbortVars
 static struct perThreadAbortVars *getThreadVars();  // forward declaration
 
 static void defaultVaWarn(char *format, va_list args)
-/* Default error message handler. */
+/* Default error message handler - redirected to R output stream. */
 {
 if (format != NULL) {
-    fflush(stdout);
-    vfprintf(stderr, format, args);
-    fprintf(stderr, "\n");
-    fflush(stderr);
+    REvprintf(format, args);
+    REprintf("\n");
     }
 }
 
@@ -132,7 +133,7 @@ void errnoWarn(char *format, ...)
 char fbuf[512];
 va_list args;
 va_start(args, format);
-sprintf(fbuf, "%s\n%s", strerror(errno), format);
+snprintf(fbuf, sizeof(fbuf), "%s\n%s", strerror(errno), format);
 vaWarn(fbuf, args);
 va_end(args);
 }
@@ -165,12 +166,9 @@ if (ptav->warnIx <= 0)
 }
 
 static void defaultAbort()
-/* Default error handler exits program. */
+/* Default error handler - redirected to R error to avoid crashing R. */
 {
-if ((getenv("ERRASSERT") != NULL) || (getenv("ERRABORT") != NULL))
-    abort();
-else
-    exit(-1);
+Rf_error("bigWig internal error");
 }
 
 
@@ -179,8 +177,7 @@ void noWarnAbort()
 {
 struct perThreadAbortVars *ptav = getThreadVars();
 ptav->abortArray[ptav->abortIx]();
-exit(-1);               /* This is just to make compiler happy.
-                         * We have already exited or longjmped by now. */
+Rf_error("bigWig error");  /* should not reach here after abort handler */
 }
 
 void vaErrAbort(char *format, va_list args)
@@ -212,7 +209,7 @@ void errnoAbort(char *format, ...)
 char fbuf[512];
 va_list args;
 va_start(args, format);
-sprintf(fbuf, "%s\n%s", strerror(errno), format);
+snprintf(fbuf, sizeof(fbuf), "%s\n%s", strerror(errno), format);
 vaErrAbort(fbuf, args);
 va_end(args);
 }
@@ -246,7 +243,6 @@ if (ptav->abortIx <= 0)
 static void debugAbort()
 /* Call the debugger. */
 {
-fflush(stdout);
 assert(FALSE);
 defaultAbort();
 }
@@ -322,7 +318,7 @@ if (pidInUseValid && pthread_equal(pid, pidInUse))
     // which should be a rare occurrence.
     char *errMsg = "errAbort re-entered due to out-of-memory condition. Exiting.\n";
     write_wrapped(STDERR_FILENO, errMsg, strlen(errMsg)); 
-    exit(1);   // out of memory is a serious problem, exit immediately, but allow atexit cleanup.
+    Rf_error("bigWig: out of memory");  /* avoid exit() crashing R */
     }
 pthread_mutex_unlock( &pidInUseMutex );
 
