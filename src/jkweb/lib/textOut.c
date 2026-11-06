@@ -5,6 +5,10 @@
 #include "cheapcgi.h"
 #include "pipeline.h"
 #include "textOut.h"
+/* Forward declarations for R error handling (resolved via libR at link time) */
+extern void Rf_error(const char *msg, ...);
+extern void Rprintf(const char *format, ...);
+
 
 
 static void textOutWarnHandler(char *format, va_list args)
@@ -22,9 +26,9 @@ if (format != NULL) {
 }
 
 static void textOutAbortHandler()
-/* Text mode abort handler. */
+/* Text mode abort handler - redirected to R error. */
 {
-exit(-1);
+Rf_error("bigWig text output error");
 }
 
 static char *getCompressSuffix(char *compressType)

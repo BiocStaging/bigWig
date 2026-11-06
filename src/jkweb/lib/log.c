@@ -3,6 +3,10 @@
 
 #include "common.h"
 #include "log.h"
+
+/* Forward declarations for R error handling (resolved via libR at link time) */
+extern void Rf_error(const char *msg, ...);
+extern void Rprintf(const char *format, ...);
 #include "errabort.h"
 #include "dystring.h"
 #include "options.h"
@@ -127,8 +131,7 @@ static void logAbortHandler()
 /* abort handler that logs this fact and exits. */
 {
 logError("%s aborted", gProgram);
-fprintf(stderr, "aborted");
-exit(1);
+Rf_error("bigWig log abort");
 }
 
 static void setProgram(char* program)
@@ -331,7 +334,7 @@ if (!optionExists("debug"))
     {
     int i, maxFiles = getdtablesize();
     if (mustFork() != 0)
-        exit(0);  /* parent goes away */
+        Rf_error("bigWig: daemonize not supported in R context");
 
     /* Put self in our own process group. */
 #ifndef __WIN32__
