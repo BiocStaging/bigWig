@@ -10,6 +10,10 @@
 #include "linefile.h"
 #include "hash.h"
 
+/* Forward declarations for R output functions */
+extern void Rprintf(const char *format, ...);
+extern void Rvprintf(const char *format, va_list ap);
+
 
 void *cloneMem(void *pt, size_t size)
 /* Allocate a new buffer of given size, and copy pt to it. */

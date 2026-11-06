@@ -1,7 +1,7 @@
 Package: bigWig
 Type: Package
 Title: R Interface to Query UCSC BigWig Files
-Version: 0.99.9
+Version: 0.99.10
 Date: 2026-10-26
 Authors@R: c(
     person("Andre L.", "Martins", role = "aut",
